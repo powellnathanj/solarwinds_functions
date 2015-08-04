@@ -1,0 +1,6 @@
+config:
+  username:  "" # Solarwinds API User
+  password:  "" # Solarwinds API Password
+  community: "" # SNMP community string
+  queryurl:  "" # Ex: https://sw.yourdomain.com:17778/SolarWinds/InformationService/v3/Json/Query
+  addurl:    "" # Ex: https://sw.yourdomain.com:17778/SolarWinds/InformationService/v3/Json/Create/Orion.Nodes
