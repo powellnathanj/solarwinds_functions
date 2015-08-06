@@ -16,7 +16,7 @@ module Puppet::Parser::Functions
 
     response = checkstatus(nodename, username, password, queryurl)
 
-    if response == {"results" => []}.to_json.to_s
+    if response == '{"results":[]}'
       addhost(nodename, ipaddr, username, password, addurl, community)
     end
 
@@ -27,7 +27,7 @@ end
 def checkstatus(nodename, username, password, queryurl)
 
   uri = URI.parse("#{queryurl}")
-  query = {"query" => "SELECT NodeID FROM Orion.Nodes WHERE DNS=@name", "parameters" => {"name" => "#{nodename}"}}
+  query = {"query" => "SELECT NodeID FROM Orion.Nodes WHERE NodeName=@name", "parameters" => {"name" => "#{nodename}"}}
 
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
@@ -39,7 +39,7 @@ def checkstatus(nodename, username, password, queryurl)
 
   response = http.request(request)
 
-  return response.to_s
+  return response.body.to_s
 end
 
 # If the host was not present in the checkstatus() method, then we add it
