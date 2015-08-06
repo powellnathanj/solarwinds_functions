@@ -18,8 +18,6 @@ module Puppet::Parser::Functions
     config["nodename"]  = lookupvar('fqdn')
     config["ipaddr"]    = lookupvar('ipaddress')
 
-    File.open("/tmp/cf.log", 'a'){|fd| fd.puts config.inspect}
-    
     response = checkstatus(config)
 
     if response == '{"results":[]}'
