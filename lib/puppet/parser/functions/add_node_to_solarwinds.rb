@@ -47,7 +47,7 @@ def addhost(nodename, ipaddr, username, password, addurl, community)
 
   uri = URI.parse("#{addurl}")
   node = { "EntityType" => "Orion.Nodes", "IPAddress" => "#{ipaddr}",
-    "Caption"=> "#{nodename}", "DynamicIP" => "False", "EngineID" => 1, 
+    "Caption"=> "#{nodename}", "DynamicIP" => "False", "EngineID" => 2, 
     "Status" => 1, "UnManaged" => "False", "Allow64BitCounters" => "True", 
     "SysObjectID" => "", "MachineType" => "", "VendorIcon" => "", 
     "ObjectSubType" => "SNMP", "SNMPVersion" => 2, "Community" => "#{community}",
