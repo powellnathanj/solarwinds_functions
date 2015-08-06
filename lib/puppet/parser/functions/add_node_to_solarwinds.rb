@@ -16,7 +16,9 @@ module Puppet::Parser::Functions
     config["pollers"]   = function_hiera(['solarwinds_functions::config::pollers'])
     config["engineid"]  = config["pollers"].split(",").sample
     config["nodename"]  = lookupvar('fqdn')
-    config["ipaddr"]    = lookupvar('fqdn')
+    config["ipaddr"]    = lookupvar('ipaddress')
+
+    File.open("/tmp/cf.log", 'a'){|fd| fd.puts config.inspect}
     
     response = checkstatus(config)
 
