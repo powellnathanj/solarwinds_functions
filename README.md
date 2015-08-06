@@ -1,7 +1,9 @@
 Solarwinds/Puppet Custom Function
 =================================
 
-This is a Puppet custom function that will check Solarwinds and if the node doesn't already exist, it will add it for you.
+This is a Puppet custom function for adding nodes to Solarwinds automagically
+
+Every puppet run the function will reach out to your Solarwinds instance and ask if it is already being monitored.  If it finds out that it does not exist it will add itself.
 
 Installation
 ===========
@@ -27,7 +29,10 @@ The SNMP Communit String you want to use
     
     solarwinds_functions::config::community: ""
 
-Finally you can add the IDs of your pollers so it can pick one at random to spread the load. This should be a comma separated single string (ex: "2,3,4,5")
+Add the IDs of your pollers so it can pick one at random to spread the load. This should be a comma separated single string (ex: "2,3,4,5")
     
     solarwinds_functions::config::pollers: ""
 
+Finally, in a profile manifest add the following function:
+    
+    add_node_to_solarwinds()
