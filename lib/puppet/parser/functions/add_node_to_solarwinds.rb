@@ -14,7 +14,7 @@ module Puppet::Parser::Functions
     config["addurl"]    = function_hiera(['solarwinds_functions::config::addurl'])
     config["community"] = function_hiera(['solarwinds_functions::config::community'])
     config["pollers"]   = function_hiera(['solarwinds_functions::config::pollers'])
-    config["engineid"]  = pollers.split(",").sample
+    config["engineid"]  = config["pollers"].split(",").sample
     config["nodename"]  = lookupvar('fqdn')
     config["ipaddr"]    = lookupvar('fqdn')
     
