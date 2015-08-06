@@ -6,25 +6,27 @@ require "net/http"
 # This is a custom function to add nodes to Solarwinds that aren't already there.
 module Puppet::Parser::Functions
   newfunction(:add_node_to_solarwinds) do |args|
-    config   = YAML.load(function_file(["solarwinds_functions/sw.yml"]))
-    nodename = lookupvar('fqdn')
-    ipaddr   = lookupvar('ipaddress')
-    username = config['config']['username']
-    password = config['config']['password']
+    username  = function_hiera(['solarwinds_functions::config::username'])
+    password  = function_hiera(['solarwinds_functions::config::password'])
+    queryurl  = function_hiera(['solarwinds_functions::config::queryurl'])
+    addurl    = function_hiera(['solarwinds_functions::config::addurl'])
+    community = function_hiera(['solarwinds_functions::config::community'])
+    nodename  = lookupvar('fqdn')
+    ipaddr    = lookupvar('ipaddress')
 
-    response = checkstatus(nodename, config)
+    response = checkstatus(nodename, username, password, queryurl)
 
-    unless response == {"results" => []}.to_json.to_s
-      addhost(nodename, ipaddr, config)
+    if response == {"results" => []}.to_json.to_s
+      addhost(nodename, ipaddr, username, password, addurl, community)
     end
 
   end
 end
 
 # Reach out to the Solarwinds (Orion) API and ask if the host is present
-def checkstatus(nodename, config)
+def checkstatus(nodename, username, password, queryurl)
 
-  uri = URI.parse(config['config']['queryurl'])
+  uri = URI.parse("#{queryurl}")
   query = {"query" => "SELECT NodeID FROM Orion.Nodes WHERE DNS=@name", "parameters" => {"name" => "#{nodename}"}}
 
   http = Net::HTTP.new(uri.host, uri.port)
@@ -33,7 +35,7 @@ def checkstatus(nodename, config)
   
   request = Net::HTTP::Post.new(uri.request_uri, initheader = {'Content-Type' =>'application/json'})
   request.body = query.to_json
-  request.basic_auth(config['config']['username'], config['config']['password'])
+  request.basic_auth("#{username}", "#{password}")
 
   response = http.request(request)
 
@@ -41,14 +43,14 @@ def checkstatus(nodename, config)
 end
 
 # If the host was not present in the checkstatus() method, then we add it
-def addhost(nodename, ipaddr, config)
+def addhost(nodename, ipaddr, username, password, addurl, community)
 
-  uri = URI.parse(config['config']['addurl'])
+  uri = URI.parse("#{addurl}")
   node = { "EntityType" => "Orion.Nodes", "IPAddress" => "#{ipaddr}",
     "Caption"=> "#{nodename}", "DynamicIP" => "False", "EngineID" => 1, 
     "Status" => 1, "UnManaged" => "False", "Allow64BitCounters" => "True", 
     "SysObjectID" => "", "MachineType" => "", "VendorIcon" => "", 
-    "ObjectSubType" => "SNMP", "SNMPVersion" => 2, "Community" => config['config']['community'],
+    "ObjectSubType" => "SNMP", "SNMPVersion" => 2, "Community" => "#{community}",
   }
 
   http = Net::HTTP.new(uri.host, uri.port)
@@ -57,7 +59,7 @@ def addhost(nodename, ipaddr, config)
 
   request = Net::HTTP::Post.new(uri.request_uri, initheader = {'Content-Type' =>'application/json'})
   request.body = node.to_json
-  request.basic_auth(config['config']['username'], config['config']['password'])
+  request.basic_auth("#{username}", "#{password}")
 
   response = http.request(request)
 end
